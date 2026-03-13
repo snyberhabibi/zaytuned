@@ -1,87 +1,51 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUserProgress } from "@/contexts/UserProgressContext";
 import { getAllCities } from "@/data/cities";
-import type { City, Badge as BadgeType, PassportStamp } from "@/types";
+import type { Badge as BadgeType, PassportStamp } from "@/types";
 
 // City data map for stamp designs
 const CITY_STAMP_DESIGNS: Record<string, { icon: string; color: string; tagline: { en: string; ar: string } }> = {
   jerusalem: {
-    icon: "dome",
-    color: "#C41E3A",
+    icon: "🕌",
+    color: "#f59e0b",
     tagline: { en: "Holy City", ar: "المدينة المقدسة" }
   },
   jaffa: {
-    icon: "waves",
-    color: "#228B22",
+    icon: "🍊",
+    color: "#f97316",
     tagline: { en: "Bride of the Sea", ar: "عروس البحر" }
   },
   gaza: {
-    icon: "phoenix",
-    color: "#1A1A1A",
+    icon: "🔥",
+    color: "#C41E3A",
     tagline: { en: "City of Resilience", ar: "مدينة الصمود" }
   },
   nablus: {
-    icon: "mountain",
-    color: "#556B2F",
+    icon: "⛰️",
+    color: "#10b981",
     tagline: { en: "Mountain of Fire", ar: "جبل النار" }
   },
   hebron: {
-    icon: "grapes",
-    color: "#8B0000",
+    icon: "🏛️",
+    color: "#6366f1",
     tagline: { en: "City of the Patriarchs", ar: "مدينة الخليل" }
   },
 };
 
-// Badge icons mapping
-const BADGE_ICONS: Record<string, string> = {
-  explorer: "compass",
-  historian: "scroll",
-  chef: "utensils",
-  linguist: "language",
-  artist: "palette",
-  quiz_master: "trophy",
-  first_city: "flag",
-  all_cities: "globe",
-};
-
 export default function PassportPage() {
-  const { language, t, isRTL } = useLanguage();
+  const { language, t } = useLanguage();
   const { progress, isLoading, totalPoints } = useUserProgress();
-  const [currentPage, setCurrentPage] = useState<"cover" | "stamps" | "badges" | "stats">("cover");
-  const [isGeneratingCard, setIsGeneratingCard] = useState(false);
-  const [showCardModal, setShowCardModal] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const cities = getAllCities();
-
-  const translations = {
-    title: { en: "My Palestinian Heritage Passport", ar: "جواز سفري التراثي الفلسطيني", transliteration: "" },
-    coverTitle: { en: "Palestinian Heritage", ar: "التراث الفلسطيني", transliteration: "" },
-    passport: { en: "PASSPORT", ar: "جواز سفر", transliteration: "" },
-    stamps: { en: "My Stamps", ar: "طوابعي", transliteration: "" },
-    badges: { en: "My Badges", ar: "شاراتي", transliteration: "" },
-    statistics: { en: "My Journey", ar: "رحلتي", transliteration: "" },
-    totalPoints: { en: "Total Points", ar: "مجموع النقاط", transliteration: "" },
-    citiesExplored: { en: "Cities Explored", ar: "المدن المستكشفة", transliteration: "" },
-    badgesEarned: { en: "Badges Earned", ar: "الشارات المكتسبة", transliteration: "" },
-    stampsCollected: { en: "Stamps Collected", ar: "الطوابع المجمعة", transliteration: "" },
-    generateCard: { en: "Generate Heritage Card", ar: "إنشاء بطاقة التراث", transliteration: "" },
-    shareJourney: { en: "Share Your Journey", ar: "شارك رحلتك", transliteration: "" },
-    noStampsYet: { en: "Start exploring cities to collect stamps!", ar: "ابدأ باستكشاف المدن لجمع الطوابع!", transliteration: "" },
-    noBadgesYet: { en: "Complete challenges to earn badges!", ar: "أكمل التحديات لكسب الشارات!", transliteration: "" },
-    earnedOn: { en: "Earned on", ar: "حصلت عليها في", transliteration: "" },
-    back: { en: "Back", ar: "رجوع", transliteration: "" },
-    viewPassport: { en: "Open Passport", ar: "افتح الجواز", transliteration: "" },
-    downloadCard: { en: "Download Card", ar: "تحميل البطاقة", transliteration: "" },
-    close: { en: "Close", ar: "إغلاق", transliteration: "" },
-    heritageExplorer: { en: "Heritage Explorer", ar: "مستكشف التراث", transliteration: "" },
-    journeyStarted: { en: "Journey Started", ar: "بدأت الرحلة", transliteration: "" },
-    loading: { en: "Loading your passport...", ar: "جارٍ تحميل جوازك...", transliteration: "" },
-  };
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US", {
@@ -96,706 +60,394 @@ export default function PassportPage() {
     return city ? t(city.name) : cityId;
   };
 
-  const generateHeritageCard = useCallback(async () => {
-    setIsGeneratingCard(true);
-    // Simulate card generation
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsGeneratingCard(false);
-    setShowCardModal(true);
-  }, []);
-
-  const downloadCard = useCallback(() => {
-    // In a real app, this would use html2canvas or similar
-    alert(language === "ar" ? "سيتم تحميل البطاقة قريباً!" : "Card download coming soon!");
-  }, [language]);
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center tatreez-pattern-bg">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFEF7]">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-[var(--tatreez-red)] border-t-transparent animate-spin" />
-          <p className="text-lg" style={{ color: "var(--foreground-muted)" }}>
-            {t(translations.loading)}
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full border-4 border-[#C41E3A] border-t-transparent animate-spin" />
+          <p className="text-lg font-medium text-gray-500">
+            {language === "ar" ? "جارٍ تحميل جوازك..." : "Loading your passport..."}
           </p>
         </div>
       </div>
     );
   }
 
-  // Passport Cover Component
-  const PassportCover = () => (
-    <div
-      className="relative w-full max-w-sm mx-auto aspect-[3/4] cursor-pointer group"
-      onClick={() => setCurrentPage("stamps")}
-    >
-      {/* Passport book */}
-      <div
-        className="absolute inset-0 rounded-lg shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
-        style={{
-          background: "linear-gradient(135deg, var(--tatreez-green-dark) 0%, var(--tatreez-green) 50%, var(--olive-dark) 100%)",
-          border: "4px solid var(--gold)",
-        }}
-      >
-        {/* Embossed pattern overlay */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L25 10H35L27 17L30 27L20 21L10 27L13 17L5 10H15Z' fill='%23DAA520' fill-opacity='0.3'/%3E%3C/svg%3E")`,
-          backgroundRepeat: "repeat",
-        }} />
-
-        {/* Top olive branch decoration */}
-        <div className="absolute top-8 left-1/2 -translate-x-1/2">
-          <OliveBranchSVG />
-        </div>
-
-        {/* Central emblem */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          {/* Keffiyeh pattern circle */}
-          <div
-            className="w-28 h-28 mx-auto mb-4 rounded-full flex items-center justify-center"
-            style={{
-              background: "var(--cream)",
-              border: "4px solid var(--gold)",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-            }}
-          >
-            <span className="text-5xl">&#127477;&#127480;</span>
-          </div>
-
-          <h1
-            className="text-2xl font-bold mb-2"
-            style={{ color: "var(--gold)", textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
-          >
-            {t(translations.coverTitle)}
-          </h1>
-          <p
-            className="text-lg tracking-[0.3em] uppercase"
-            style={{ color: "var(--cream)" }}
-          >
-            {t(translations.passport)}
-          </p>
-        </div>
-
-        {/* Bottom olive branch decoration */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 rotate-180">
-          <OliveBranchSVG />
-        </div>
-
-        {/* Spine effect */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-4"
-          style={{
-            background: "linear-gradient(90deg, rgba(0,0,0,0.3), transparent)",
-          }}
-        />
-
-        {/* Click hint */}
-        <div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{ color: "var(--cream)" }}
-        >
-          <p className="text-sm flex items-center gap-2">
-            <span>{t(translations.viewPassport)}</span>
-            <span className="animate-bounce inline-block">&rarr;</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Stamps Page Component
-  const StampsPage = () => (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* Page header like passport page */}
-      <div
-        className="p-6 rounded-t-lg"
-        style={{
-          background: "var(--cream)",
-          borderBottom: "2px dashed var(--olive)",
-        }}
-      >
-        <h2 className="heading-3 text-center" style={{ color: "var(--tatreez-red)" }}>
-          {t(translations.stamps)}
-        </h2>
-      </div>
-
-      {/* Stamps grid */}
-      <div
-        className="p-8 min-h-[400px]"
-        style={{
-          background: "linear-gradient(to bottom, var(--cream), var(--background-secondary))",
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='50' x2='100' y2='50' stroke='%23C2B280' stroke-width='0.5' stroke-dasharray='5,5'/%3E%3Cline x1='50' y1='0' x2='50' y2='100' stroke='%23C2B280' stroke-width='0.5' stroke-dasharray='5,5'/%3E%3C/svg%3E")`,
-        }}
-      >
-        {progress?.passportStamps && progress.passportStamps.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {progress.passportStamps.map((stamp, index) => (
-              <StampComponent key={stamp.cityId} stamp={stamp} index={index} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4 opacity-30">&#128747;</div>
-            <p className="text-lg" style={{ color: "var(--foreground-muted)" }}>
-              {t(translations.noStampsYet)}
-            </p>
-            <Link href="/" className="btn-primary inline-block mt-4">
-              {language === "ar" ? "استكشف المدن" : "Explore Cities"}
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation tabs */}
-      <div
-        className="flex border-t"
-        style={{ borderColor: "var(--olive)" }}
-      >
-        <button
-          onClick={() => setCurrentPage("cover")}
-          className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-          style={{ color: "var(--foreground-muted)" }}
-        >
-          &#128214; {t(translations.back)}
-        </button>
-        <button
-          onClick={() => setCurrentPage("badges")}
-          className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-          style={{ borderLeft: "1px solid var(--olive)", color: "var(--tatreez-red)" }}
-        >
-          &#127942; {t(translations.badges)}
-        </button>
-        <button
-          onClick={() => setCurrentPage("stats")}
-          className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-          style={{ borderLeft: "1px solid var(--olive)", color: "var(--tatreez-green)" }}
-        >
-          &#128200; {t(translations.statistics)}
-        </button>
-      </div>
-    </div>
-  );
-
-  // Individual Stamp Component
-  const StampComponent = ({ stamp, index }: { stamp: PassportStamp; index: number }) => {
-    const design = CITY_STAMP_DESIGNS[stamp.cityId] || {
-      icon: "star",
-      color: "var(--tatreez-red)",
-      tagline: { en: "Explored", ar: "مستكشفة" }
-    };
-
-    return (
-      <div
-        className="passport-stamp animate-stamp relative"
-        style={{
-          animationDelay: `${index * 0.15}s`,
-          borderColor: design.color,
-          transform: `rotate(${-8 + Math.random() * 16}deg)`,
-        }}
-      >
-        <div className="text-center">
-          {/* City icon */}
-          <div className="text-4xl mb-2">
-            {stamp.cityId === "jerusalem" && "&#128332;"}
-            {stamp.cityId === "jaffa" && "&#127754;"}
-            {stamp.cityId === "gaza" && "&#128293;"}
-            {stamp.cityId === "nablus" && "&#9968;"}
-            {stamp.cityId === "hebron" && "&#127815;"}
-            {!["jerusalem", "jaffa", "gaza", "nablus", "hebron"].includes(stamp.cityId) && "&#11088;"}
-          </div>
-
-          {/* City name */}
-          <h3
-            className="font-bold text-lg mb-1"
-            style={{ color: design.color }}
-          >
-            {getCityName(stamp.cityId)}
-          </h3>
-
-          {/* Tagline */}
-          <p className="text-xs italic mb-2" style={{ color: "var(--foreground-muted)" }}>
-            {design.tagline[language]}
-          </p>
-
-          {/* Date */}
-          <div
-            className="text-xs px-2 py-1 rounded"
-            style={{ background: `${design.color}20`, color: design.color }}
-          >
-            {formatDate(stamp.earnedAt)}
-          </div>
-        </div>
-
-        {/* Decorative border dots */}
-        <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-          border: `2px dotted ${design.color}40`,
-          transform: "scale(0.92)",
-        }} />
-      </div>
-    );
-  };
-
-  // Badges Page Component
-  const BadgesPage = () => (
-    <div className="w-full max-w-4xl mx-auto">
-      <div
-        className="p-6 rounded-t-lg"
-        style={{
-          background: "var(--cream)",
-          borderBottom: "2px dashed var(--olive)",
-        }}
-      >
-        <h2 className="heading-3 text-center" style={{ color: "var(--gold)" }}>
-          {t(translations.badges)}
-        </h2>
-      </div>
-
-      <div
-        className="p-8 min-h-[400px]"
-        style={{ background: "var(--background-secondary)" }}
-      >
-        {progress?.badges && progress.badges.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {progress.badges.map((badge, index) => (
-              <BadgeComponent key={badge.id} badge={badge} index={index} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4 opacity-30">&#127942;</div>
-            <p className="text-lg" style={{ color: "var(--foreground-muted)" }}>
-              {t(translations.noBadgesYet)}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation tabs */}
-      <div
-        className="flex border-t"
-        style={{ borderColor: "var(--olive)" }}
-      >
-        <button
-          onClick={() => setCurrentPage("stamps")}
-          className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-          style={{ color: "var(--tatreez-red)" }}
-        >
-          &#128747; {t(translations.stamps)}
-        </button>
-        <button
-          onClick={() => setCurrentPage("cover")}
-          className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-          style={{ borderLeft: "1px solid var(--olive)", color: "var(--foreground-muted)" }}
-        >
-          &#128214; {t(translations.back)}
-        </button>
-        <button
-          onClick={() => setCurrentPage("stats")}
-          className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-          style={{ borderLeft: "1px solid var(--olive)", color: "var(--tatreez-green)" }}
-        >
-          &#128200; {t(translations.statistics)}
-        </button>
-      </div>
-    </div>
-  );
-
-  // Individual Badge Component
-  const BadgeComponent = ({ badge, index }: { badge: BadgeType; index: number }) => {
-    const badgeColors: Record<string, string> = {
-      city: "var(--tatreez-red)",
-      quiz: "var(--gold)",
-      explorer: "var(--tatreez-green)",
-      special: "var(--olive)",
-    };
-
-    return (
-      <div
-        className="card card-tatreez text-center animate-fade-in"
-        style={{
-          animationDelay: `${index * 0.1}s`,
-        }}
-      >
-        {/* Badge icon container */}
-        <div
-          className="w-20 h-20 mx-auto mb-3 rounded-full flex items-center justify-center text-4xl"
-          style={{
-            background: `linear-gradient(135deg, ${badgeColors[badge.type]}, ${badgeColors[badge.type]}CC)`,
-            boxShadow: `0 4px 15px ${badgeColors[badge.type]}40`,
-          }}
-        >
-          {badge.icon || "&#127942;"}
-        </div>
-
-        {/* Badge name */}
-        <h3 className="font-bold mb-1" style={{ color: "var(--foreground)" }}>
-          {t(badge.name)}
-        </h3>
-
-        {/* Badge description */}
-        <p className="text-sm mb-2" style={{ color: "var(--foreground-muted)" }}>
-          {t(badge.description)}
-        </p>
-
-        {/* Earned date */}
-        <div className="text-xs" style={{ color: badgeColors[badge.type] }}>
-          {t(translations.earnedOn)} {formatDate(badge.earnedAt)}
-        </div>
-      </div>
-    );
-  };
-
-  // Statistics Page Component
-  const StatsPage = () => {
-    const stats = [
-      {
-        label: translations.totalPoints,
-        value: totalPoints,
-        icon: "&#11088;",
-        color: "var(--gold)",
-      },
-      {
-        label: translations.citiesExplored,
-        value: progress?.citiesCompleted.length || 0,
-        total: cities.length,
-        icon: "&#127961;",
-        color: "var(--tatreez-red)",
-      },
-      {
-        label: translations.stampsCollected,
-        value: progress?.passportStamps.length || 0,
-        total: cities.length,
-        icon: "&#128747;",
-        color: "var(--tatreez-green)",
-      },
-      {
-        label: translations.badgesEarned,
-        value: progress?.badges.length || 0,
-        icon: "&#127942;",
-        color: "var(--olive)",
-      },
-    ];
-
-    return (
-      <div className="w-full max-w-4xl mx-auto">
-        <div
-          className="p-6 rounded-t-lg"
-          style={{
-            background: "var(--cream)",
-            borderBottom: "2px dashed var(--olive)",
-          }}
-        >
-          <h2 className="heading-3 text-center" style={{ color: "var(--tatreez-green)" }}>
-            {t(translations.statistics)}
-          </h2>
-        </div>
-
-        <div
-          className="p-8"
-          style={{ background: "var(--background-secondary)" }}
-        >
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="card text-center py-6 animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div
-                  className="text-4xl mb-2"
-                  dangerouslySetInnerHTML={{ __html: stat.icon }}
-                />
-                <div
-                  className="text-3xl font-bold mb-1"
-                  style={{ color: stat.color }}
-                >
-                  {stat.value}
-                  {stat.total && (
-                    <span className="text-lg" style={{ color: "var(--foreground-muted)" }}>
-                      /{stat.total}
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm" style={{ color: "var(--foreground-muted)" }}>
-                  {t(stat.label)}
-                </div>
-                {stat.total && (
-                  <div className="progress-bar mt-3">
-                    <div
-                      className="progress-bar-fill"
-                      style={{ width: `${(stat.value / stat.total) * 100}%` }}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Journey timeline */}
-          {progress?.createdAt && (
-            <div className="text-center mb-8 py-4 rounded-lg" style={{ background: "var(--cream)" }}>
-              <p style={{ color: "var(--foreground-muted)" }}>
-                {t(translations.journeyStarted)}
-              </p>
-              <p className="font-bold text-lg" style={{ color: "var(--olive)" }}>
-                {formatDate(progress.createdAt)}
-              </p>
-            </div>
-          )}
-
-          {/* Generate Heritage Card button */}
-          <div className="text-center">
-            <button
-              onClick={generateHeritageCard}
-              disabled={isGeneratingCard}
-              className="btn-primary text-lg px-8 py-4 flex items-center gap-3 mx-auto"
-            >
-              {isGeneratingCard ? (
-                <>
-                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {language === "ar" ? "جاري الإنشاء..." : "Generating..."}
-                </>
-              ) : (
-                <>
-                  &#127912; {t(translations.generateCard)}
-                </>
-              )}
-            </button>
-            <p className="mt-2 text-sm" style={{ color: "var(--foreground-muted)" }}>
-              {t(translations.shareJourney)}
-            </p>
-          </div>
-        </div>
-
-        {/* Navigation tabs */}
-        <div
-          className="flex border-t"
-          style={{ borderColor: "var(--olive)" }}
-        >
-          <button
-            onClick={() => setCurrentPage("stamps")}
-            className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-            style={{ color: "var(--tatreez-red)" }}
-          >
-            &#128747; {t(translations.stamps)}
-          </button>
-          <button
-            onClick={() => setCurrentPage("badges")}
-            className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-            style={{ borderLeft: "1px solid var(--olive)", color: "var(--gold)" }}
-          >
-            &#127942; {t(translations.badges)}
-          </button>
-          <button
-            onClick={() => setCurrentPage("cover")}
-            className="flex-1 py-3 text-center transition-colors hover:bg-[var(--cream)]"
-            style={{ borderLeft: "1px solid var(--olive)", color: "var(--foreground-muted)" }}
-          >
-            &#128214; {t(translations.back)}
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Heritage Card Modal
-  const HeritageCardModal = () => (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.8)" }}
-      onClick={() => setShowCardModal(false)}
-    >
-      <div
-        className="w-full max-w-md animate-fade-in"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* The Heritage Card */}
-        <div
-          ref={cardRef}
-          className="rounded-xl overflow-hidden shadow-2xl"
-          style={{
-            background: "linear-gradient(135deg, var(--cream) 0%, var(--background-secondary) 100%)",
-          }}
-        >
-          {/* Card Header */}
-          <div
-            className="p-6 text-center"
-            style={{
-              background: "linear-gradient(135deg, var(--tatreez-red) 0%, var(--tatreez-red-dark) 100%)",
-            }}
-          >
-            <div className="flex justify-center mb-3">
-              <OliveBranchSVG light />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-1">
-              {t(translations.heritageExplorer)}
-            </h3>
-            <p className="text-white/80 text-sm">
-              Zaytuned Palestinian Heritage
-            </p>
-          </div>
-
-          {/* Card Body */}
-          <div className="p-6">
-            {/* User stats */}
-            <div className="grid grid-cols-3 gap-4 text-center mb-6">
-              <div>
-                <div className="text-3xl font-bold" style={{ color: "var(--gold)" }}>
-                  {totalPoints}
-                </div>
-                <div className="text-xs" style={{ color: "var(--foreground-muted)" }}>
-                  Points
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold" style={{ color: "var(--tatreez-red)" }}>
-                  {progress?.citiesCompleted.length || 0}
-                </div>
-                <div className="text-xs" style={{ color: "var(--foreground-muted)" }}>
-                  Cities
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold" style={{ color: "var(--tatreez-green)" }}>
-                  {progress?.badges.length || 0}
-                </div>
-                <div className="text-xs" style={{ color: "var(--foreground-muted)" }}>
-                  Badges
-                </div>
-              </div>
-            </div>
-
-            {/* City stamps showcase */}
-            {progress?.passportStamps && progress.passportStamps.length > 0 && (
-              <div className="flex justify-center gap-2 flex-wrap mb-6">
-                {progress.passportStamps.slice(0, 5).map((stamp) => (
-                  <div
-                    key={stamp.cityId}
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
-                    style={{
-                      background: "var(--cream)",
-                      border: `2px solid ${CITY_STAMP_DESIGNS[stamp.cityId]?.color || "var(--olive)"}`,
-                    }}
-                  >
-                    {stamp.cityId === "jerusalem" && "&#128332;"}
-                    {stamp.cityId === "jaffa" && "&#127754;"}
-                    {stamp.cityId === "gaza" && "&#128293;"}
-                    {stamp.cityId === "nablus" && "&#9968;"}
-                    {stamp.cityId === "hebron" && "&#127815;"}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Tatreez border */}
-            <div className="tatreez-border p-4 text-center">
-              <p className="text-sm" style={{ color: "var(--foreground-muted)" }}>
-                {language === "ar"
-                  ? "رحلة في التراث الفلسطيني"
-                  : "A Journey Through Palestinian Heritage"}
-              </p>
-            </div>
-          </div>
-
-          {/* Card Footer */}
-          <div
-            className="p-4 text-center"
-            style={{ background: "var(--tatreez-black)" }}
-          >
-            <p className="text-white/60 text-xs">zaytuned.app</p>
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex gap-4 mt-6">
-          <button
-            onClick={downloadCard}
-            className="btn-primary flex-1"
-          >
-            &#128229; {t(translations.downloadCard)}
-          </button>
-          <button
-            onClick={() => setShowCardModal(false)}
-            className="btn-secondary flex-1"
-          >
-            {t(translations.close)}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const stampedCities = progress?.passportStamps || [];
+  const lockedCities = ["nablus", "hebron"].filter(id => !stampedCities.find(s => s.cityId === id));
 
   return (
-    <main className="min-h-screen tatreez-pattern-bg py-8 px-4">
+    <div className="min-h-screen bg-[#FFFEF7] tatreez-pattern-bg">
       {/* Header */}
-      <header className="max-w-4xl mx-auto mb-8">
-        <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-50 glass px-8 py-4 flex items-center justify-between border-b border-[#C41E3A]/10">
+        <div className="flex items-center gap-4">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm"
-            style={{ color: "var(--foreground-muted)" }}
+            className="w-10 h-10 rounded-full bg-[#F5F0E1] flex items-center justify-center hover:bg-[#C41E3A]/10 transition-colors text-[#C41E3A]"
           >
-            <span>{isRTL ? "&larr;" : "&larr;"}</span>
-            {language === "ar" ? "الرئيسية" : "Home"}
+            ←
           </Link>
-          <h1 className="heading-2 text-center" style={{ color: "var(--tatreez-red)" }}>
-            {t(translations.title)}
-          </h1>
-          <div className="w-16" /> {/* Spacer for centering */}
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold tracking-tight text-[#1A1A1A]">
+              {language === "ar" ? "جواز التراث" : "My Heritage Passport"}
+            </h1>
+            <p className="text-xs text-[#C41E3A] uppercase tracking-widest font-bold">
+              Explorer ID: Z-98234
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 bg-[#F5F0E1] px-4 py-2 rounded-full border border-[#E8DCC4]">
+            <span className="text-[#2D8B4E]">📍</span>
+            <span className="font-bold text-sm">
+              {progress?.citiesCompleted?.length || 0} / {cities.length} {language === "ar" ? "مدن" : "Cities"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 bg-[#D4AF37]/10 px-4 py-2 rounded-full border border-[#D4AF37]/20">
+            <span className="text-[#D4AF37]">⭐</span>
+            <span className="font-bold text-sm">{mounted ? totalPoints : 0} {language === "ar" ? "نقطة" : "Points"}</span>
+          </div>
+          <button className="bg-[#C41E3A] text-white px-5 py-2 rounded-full font-bold text-sm hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            📤 {language === "ar" ? "شارك" : "Share"}
+          </button>
         </div>
       </header>
 
-      {/* Main content */}
-      <div className="flex justify-center">
-        {currentPage === "cover" && <PassportCover />}
-        {currentPage === "stamps" && <StampsPage />}
-        {currentPage === "badges" && <BadgesPage />}
-        {currentPage === "stats" && <StatsPage />}
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 p-8 lg:p-12">
+        <div className="grid grid-cols-12 gap-8 max-w-7xl mx-auto">
+          {/* Left Column - ID & Stats */}
+          <div className="col-span-12 lg:col-span-4 space-y-8">
+            {/* ID Card */}
+            <div className="bg-white rounded-3xl p-8 border border-[#E8DCC4] shadow-xl relative overflow-hidden">
+              {/* Top border stripe */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#C41E3A] via-[#1A1A1A] to-[#2D8B4E]" />
 
-      {/* Heritage Card Modal */}
-      {showCardModal && <HeritageCardModal />}
-    </main>
+              <div className="flex flex-col items-center text-center">
+                {/* Avatar */}
+                <div className="relative mb-6">
+                  <div className="w-32 h-32 rounded-3xl bg-[#E8DCC4] p-1 border-2 border-[#C41E3A] flex items-center justify-center">
+                    <span className="text-6xl">🧑‍🎓</span>
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 bg-[#2D8B4E] text-white w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+                    ✓
+                  </div>
+                </div>
+
+                <h2 className="text-2xl font-extrabold text-[#1A1A1A]">
+                  {language === "ar" ? "مستكشف التراث" : "Heritage Explorer"}
+                </h2>
+                <p className="text-[#C41E3A] font-medium mb-4">
+                  {language === "ar" ? "مستوى 14 • زيتونة ذهبية" : "Level 14 • Golden Olive"}
+                </p>
+
+                <div className="w-full border-t border-dashed border-[#E8DCC4] my-6" />
+
+                <div className="w-full space-y-4 text-left">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs uppercase text-gray-400 font-bold tracking-widest">
+                      {language === "ar" ? "الجنسية" : "Nationality"}
+                    </span>
+                    <span className="font-bold text-[#1A1A1A]">
+                      {language === "ar" ? "فلسطيني" : "Palestinian"} 🇵🇸
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs uppercase text-gray-400 font-bold tracking-widest">
+                      {language === "ar" ? "تاريخ الانضمام" : "Joined Date"}
+                    </span>
+                    <span className="font-bold text-[#1A1A1A]">
+                      {progress?.createdAt ? formatDate(progress.createdAt) : "Oct 2023"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs uppercase text-gray-400 font-bold tracking-widest">
+                      {language === "ar" ? "الرتبة" : "Rank"}
+                    </span>
+                    <span className="font-bold text-[#D4AF37]">
+                      {language === "ar" ? "زيتونة ذهبية" : "Golden Olive"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                <div className="bg-[#FFFEF7] px-4 py-4 rounded-2xl border border-[#E8DCC4]/30 flex flex-col items-center text-center">
+                  <span className="text-2xl font-black text-[#2D8B4E]">
+                    {progress?.citiesCompleted?.length || 0}
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-gray-500">
+                    {language === "ar" ? "دروس" : "Lessons"}
+                  </span>
+                </div>
+                <div className="bg-[#FFFEF7] px-4 py-4 rounded-2xl border border-[#E8DCC4]/30 flex flex-col items-center text-center">
+                  <span className="text-2xl font-black text-[#C41E3A]">420</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-500">
+                    {language === "ar" ? "دقيقة" : "Minutes"}
+                  </span>
+                </div>
+                <div className="bg-[#FFFEF7] px-4 py-4 rounded-2xl border border-[#E8DCC4]/30 flex flex-col items-center text-center">
+                  <span className="text-2xl font-black text-amber-600">8</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-500">
+                    {language === "ar" ? "ألعاب" : "Games Won"}
+                  </span>
+                </div>
+                <div className="bg-[#FFFEF7] px-4 py-4 rounded-2xl border border-[#E8DCC4]/30 flex flex-col items-center text-center">
+                  <span className="text-2xl font-black text-[#1A1A1A]">{stampedCities.length}</span>
+                  <span className="text-[10px] uppercase font-bold text-gray-500">
+                    {language === "ar" ? "طوابع" : "Stamps"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Achievements */}
+            <div className="bg-white rounded-3xl p-6 border border-[#E8DCC4] shadow-md">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <span className="text-[#D4AF37]">🏆</span>
+                {language === "ar" ? "الإنجازات" : "Achievements"}
+              </h3>
+              <div className="space-y-4">
+                {/* Unlocked Badge */}
+                <div className="flex items-center gap-4 p-3 bg-[#FFFEF7] rounded-2xl">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#B8860B] flex items-center justify-center text-white shadow-sm">
+                    🧵
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">{language === "ar" ? "خبير التطريز" : "Tatreez Master"}</p>
+                    <p className="text-xs text-gray-500">{language === "ar" ? "حدد 10 أنماط" : "Identify 10 patterns"}</p>
+                  </div>
+                  <span className="text-[#2D8B4E] text-xl">✓</span>
+                </div>
+
+                {/* Locked Badge */}
+                <div className="flex items-center gap-4 p-3 bg-[#FFFEF7] rounded-2xl opacity-60">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-[#E8DCC4] flex items-center justify-center text-gray-400 shadow-sm">
+                    🍽️
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">{language === "ar" ? "مستكشف الطعام" : "Foodie Explorer"}</p>
+                    <p className="text-xs text-gray-500">8/15 {language === "ar" ? "وصفات" : "Recipes learned"}</p>
+                  </div>
+                  <span className="text-gray-300">🔒</span>
+                </div>
+
+                {/* Progress */}
+                <div className="mt-4 pt-4 border-t border-[#E8DCC4]/50">
+                  <div className="flex justify-between text-xs font-bold mb-2">
+                    <span>{language === "ar" ? "الإنجاز التالي: أسطورة الخريطة" : "Next: Map Legend"}</span>
+                    <span>75%</span>
+                  </div>
+                  <div className="w-full h-2 bg-[#E8DCC4] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#C41E3A] rounded-full" style={{ width: "75%" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Stamps */}
+          <div className="col-span-12 lg:col-span-8">
+            <div className="bg-white rounded-3xl border border-[#E8DCC4] shadow-xl flex flex-col min-h-full relative overflow-hidden">
+              {/* Top border stripe */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#C41E3A] via-[#1A1A1A] to-[#2D8B4E]" />
+
+              {/* Header */}
+              <div className="p-8 border-b border-[#E8DCC4] bg-[#FFFEF7]/30 flex justify-between items-center">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-[#1A1A1A]">
+                    {language === "ar" ? "طوابع المدن" : "City Stamps"}
+                  </h2>
+                  <p className="text-gray-500 italic">
+                    {language === "ar" ? "اجمع الطوابع بإكمال مهام المدن" : "Collect stamps by completing city quests"}
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <span className="text-6xl text-[#C41E3A] opacity-10 rotate-12">📕</span>
+                </div>
+              </div>
+
+              {/* Stamps Grid */}
+              <div className="p-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 flex-1">
+                {/* Collected Stamps */}
+                {stampedCities.map((stamp, index) => (
+                  <StampComponent
+                    key={stamp.cityId}
+                    stamp={stamp}
+                    design={CITY_STAMP_DESIGNS[stamp.cityId]}
+                    cityName={getCityName(stamp.cityId)}
+                    formatDate={formatDate}
+                    language={language}
+                    index={index}
+                    mounted={mounted}
+                  />
+                ))}
+
+                {/* Show placeholder stamps if no stamps yet */}
+                {stampedCities.length === 0 && (
+                  <>
+                    <LockedStamp name="القدس" nameEn="Jerusalem" language={language} />
+                    <LockedStamp name="يافا" nameEn="Jaffa" language={language} />
+                    <LockedStamp name="غزة" nameEn="Gaza" language={language} />
+                  </>
+                )}
+
+                {/* Locked Stamps */}
+                {lockedCities.map((cityId) => (
+                  <LockedStamp
+                    key={cityId}
+                    name={cityId === "nablus" ? "نابلس" : "الخليل"}
+                    nameEn={cityId === "nablus" ? "Nablus" : "Hebron"}
+                    language={language}
+                    level={cityId === "nablus" ? 15 : 18}
+                  />
+                ))}
+
+                {/* Future City Slot */}
+                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-[#E8DCC4] rounded-3xl opacity-40">
+                  <span className="text-4xl text-[#E8DCC4] mb-2">➕</span>
+                  <p className="text-xs font-bold text-center">
+                    {language === "ar" ? "اكتشف المزيد قريباً" : "Discover More Cities Soon"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-8 bg-[#FFFEF7]/30 border-t border-[#E8DCC4] flex items-center justify-between">
+                <div className="flex gap-4">
+                  <button className="flex items-center gap-2 text-[#C41E3A] font-bold text-sm hover:underline">
+                    📥 {language === "ar" ? "حفظ كصورة" : "Export as Image"}
+                  </button>
+                  <button className="flex items-center gap-2 text-[#C41E3A] font-bold text-sm hover:underline">
+                    🖨️ {language === "ar" ? "طباعة" : "Print Passport"}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-gray-400 tracking-widest uppercase">
+                    {language === "ar" ? "موثق من زيتونة" : "Verified by Zaytuned"}
+                  </span>
+                  <span className="text-[#2D8B4E]">✓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="p-12 bg-[#1A1A1A] text-[#FFFEF7]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🫒</span>
+            <span className="text-xl font-extrabold tracking-tight">Zaytuned</span>
+          </div>
+
+          <p className="text-[#FFFEF7]/60 text-sm max-w-md text-center md:text-left">
+            {language === "ar"
+              ? "يسجل جواز زيتونة الرقمي رحلتك عبر التراث والتاريخ الفلسطيني الغني."
+              : "The Zaytuned Digital Passport records your journey through the rich heritage and history of Palestine."}
+          </p>
+
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-[#C41E3A] transition-colors text-2xl">📸</a>
+            <a href="#" className="hover:text-[#C41E3A] transition-colors text-2xl">🐦</a>
+            <a href="#" className="hover:text-[#C41E3A] transition-colors text-2xl">📱</a>
+          </div>
+        </div>
+
+        <div className="w-full h-px bg-[#FFFEF7]/10 mt-12 mb-8" />
+
+        <div className="flex flex-col md:flex-row justify-between items-center text-[10px] uppercase font-bold tracking-[0.2em] text-[#FFFEF7]/40">
+          <p>© 2024 Zaytuned Educational Apps</p>
+          <p className="flex items-center gap-1">
+            {language === "ar" ? "صنع بـ" : "Made with"}{" "}
+            <span className="text-[#C41E3A] animate-pulse">❤️</span>{" "}
+            {language === "ar" ? "لفلسطين" : "for Palestine"}
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 }
 
-// Olive Branch SVG Component
-function OliveBranchSVG({ light = false }: { light?: boolean }) {
-  const color = light ? "#FFF8DC" : "#556B2F";
+// Stamp Component
+function StampComponent({
+  stamp,
+  design,
+  cityName,
+  formatDate,
+  language,
+  index,
+  mounted,
+}: {
+  stamp: PassportStamp;
+  design: { icon: string; color: string; tagline: { en: string; ar: string } };
+  cityName: string;
+  formatDate: (date: Date) => string;
+  language: string;
+  index: number;
+  mounted: boolean;
+}) {
+  const rotation = [-8, 12, -4][index % 3];
+
   return (
-    <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Left branch */}
-      <path
-        d="M10 20 Q30 15 50 20"
-        stroke={color}
-        strokeWidth="2"
-        fill="none"
-      />
-      {/* Left leaves */}
-      <ellipse cx="20" cy="15" rx="8" ry="4" fill={color} transform="rotate(-30 20 15)" />
-      <ellipse cx="30" cy="12" rx="8" ry="4" fill={color} transform="rotate(-20 30 12)" />
-      <ellipse cx="40" cy="14" rx="8" ry="4" fill={color} transform="rotate(-10 40 14)" />
-      <ellipse cx="25" cy="25" rx="8" ry="4" fill={color} transform="rotate(30 25 25)" />
-      <ellipse cx="35" cy="26" rx="8" ry="4" fill={color} transform="rotate(20 35 26)" />
+    <div
+      className={`flex flex-col items-center gap-4 ${mounted ? "animate-fade-in-scale" : "opacity-0"}`}
+      style={{ animationDelay: `${index * 150}ms` }}
+    >
+      <div
+        className="w-40 h-40 rounded-full border-4 p-1 flex items-center justify-center shadow-sm hover:scale-105 transition-transform cursor-pointer"
+        style={{
+          borderColor: design?.color || "#C41E3A",
+          backgroundColor: `${design?.color}10` || "#C41E3A10",
+          transform: `rotate(${rotation}deg)`,
+        }}
+      >
+        <div className="w-full h-full rounded-full border-2 border-dashed flex flex-col items-center justify-center" style={{ borderColor: `${design?.color}50` }}>
+          <span className="text-5xl mb-1">{design?.icon || "⭐"}</span>
+          <span className="text-[10px] font-black uppercase tracking-tighter arabic-text">{cityName}</span>
+          <span className="text-[8px] font-bold mt-1 opacity-60">
+            {formatDate(stamp.earnedAt)}
+          </span>
+        </div>
+      </div>
+      <p className="font-bold text-[#1A1A1A]">{cityName}</p>
+    </div>
+  );
+}
 
-      {/* Right branch */}
-      <path
-        d="M110 20 Q90 15 70 20"
-        stroke={color}
-        strokeWidth="2"
-        fill="none"
-      />
-      {/* Right leaves */}
-      <ellipse cx="100" cy="15" rx="8" ry="4" fill={color} transform="rotate(30 100 15)" />
-      <ellipse cx="90" cy="12" rx="8" ry="4" fill={color} transform="rotate(20 90 12)" />
-      <ellipse cx="80" cy="14" rx="8" ry="4" fill={color} transform="rotate(10 80 14)" />
-      <ellipse cx="95" cy="25" rx="8" ry="4" fill={color} transform="rotate(-30 95 25)" />
-      <ellipse cx="85" cy="26" rx="8" ry="4" fill={color} transform="rotate(-20 85 26)" />
-
-      {/* Center olives */}
-      <circle cx="60" cy="20" r="5" fill={color} />
-      <circle cx="55" cy="18" r="4" fill={color} opacity="0.8" />
-      <circle cx="65" cy="18" r="4" fill={color} opacity="0.8" />
-    </svg>
+// Locked Stamp Component
+function LockedStamp({
+  name,
+  nameEn,
+  language,
+  level = 0,
+}: {
+  name: string;
+  nameEn: string;
+  language: string;
+  level?: number;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 grayscale opacity-20">
+      <div className="w-40 h-40 border-4 border-dashed border-gray-400 rounded-full flex items-center justify-center p-8">
+        <div className="flex flex-col items-center text-center">
+          <span className="text-3xl mb-1">🔒</span>
+          <span className="text-[10px] font-black uppercase arabic-text">{name}</span>
+          <span className="text-xs font-bold">{nameEn}</span>
+        </div>
+      </div>
+      <p className="text-sm font-medium text-gray-500 italic">
+        {level > 0
+          ? language === "ar"
+            ? `افتح في المستوى ${level}`
+            : `Unlock in Level ${level}`
+          : language === "ar"
+          ? "استكشف لتفتح"
+          : "Explore to unlock"}
+      </p>
+    </div>
   );
 }

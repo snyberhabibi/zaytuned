@@ -13,6 +13,7 @@ interface CityMarker {
   y: number;
   status: "existing" | "destroyed" | "occupied";
   region: string;
+  icon: string;
 }
 
 // Coordinates are percentages relative to the SVG viewBox
@@ -24,6 +25,7 @@ const cities: CityMarker[] = [
     y: 62,
     status: "occupied",
     region: "jerusalem",
+    icon: "🕌",
   },
   {
     id: "jaffa",
@@ -32,6 +34,7 @@ const cities: CityMarker[] = [
     y: 55,
     status: "occupied",
     region: "coastal",
+    icon: "🌊",
   },
   {
     id: "gaza",
@@ -40,6 +43,7 @@ const cities: CityMarker[] = [
     y: 72,
     status: "existing",
     region: "gaza",
+    icon: "🔥",
   },
   {
     id: "nablus",
@@ -48,6 +52,7 @@ const cities: CityMarker[] = [
     y: 48,
     status: "existing",
     region: "central",
+    icon: "⛰️",
   },
   {
     id: "hebron",
@@ -56,6 +61,7 @@ const cities: CityMarker[] = [
     y: 70,
     status: "existing",
     region: "hebron",
+    icon: "🍇",
   },
   {
     id: "haifa",
@@ -64,6 +70,7 @@ const cities: CityMarker[] = [
     y: 30,
     status: "occupied",
     region: "coastal",
+    icon: "🏔️",
   },
   {
     id: "acre",
@@ -72,6 +79,7 @@ const cities: CityMarker[] = [
     y: 22,
     status: "occupied",
     region: "galilee",
+    icon: "🏰",
   },
   {
     id: "nazareth",
@@ -80,6 +88,7 @@ const cities: CityMarker[] = [
     y: 28,
     status: "existing",
     region: "galilee",
+    icon: "⛪",
   },
   {
     id: "safad",
@@ -88,6 +97,7 @@ const cities: CityMarker[] = [
     y: 16,
     status: "destroyed",
     region: "galilee",
+    icon: "🌄",
   },
   {
     id: "bethlehem",
@@ -96,6 +106,7 @@ const cities: CityMarker[] = [
     y: 65,
     status: "existing",
     region: "jerusalem",
+    icon: "⭐",
   },
   {
     id: "ramallah",
@@ -104,6 +115,7 @@ const cities: CityMarker[] = [
     y: 56,
     status: "existing",
     region: "central",
+    icon: "🏛️",
   },
   {
     id: "jenin",
@@ -112,6 +124,7 @@ const cities: CityMarker[] = [
     y: 38,
     status: "existing",
     region: "central",
+    icon: "🌿",
   },
   {
     id: "lydd",
@@ -120,6 +133,7 @@ const cities: CityMarker[] = [
     y: 54,
     status: "destroyed",
     region: "coastal",
+    icon: "✈️",
   },
   {
     id: "ramla",
@@ -128,6 +142,7 @@ const cities: CityMarker[] = [
     y: 56,
     status: "destroyed",
     region: "coastal",
+    icon: "🏺",
   },
 ];
 
@@ -163,7 +178,7 @@ export function PalestineMap({
     const rect = e.currentTarget.getBoundingClientRect();
     setTooltipPosition({
       x: e.clientX - rect.left,
-      y: e.clientY - rect.top - 60,
+      y: e.clientY - rect.top - 80,
     });
     setHoveredCity(city.id);
   };
@@ -173,8 +188,12 @@ export function PalestineMap({
       {/* Tooltip */}
       {hoveredCity && (
         <div
-          className="absolute z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg px-4 py-2 pointer-events-none transform -translate-x-1/2 animate-fade-in"
-          style={{ left: tooltipPosition.x, top: tooltipPosition.y }}
+          className="absolute z-50 bg-white rounded-2xl shadow-2xl px-5 py-4 pointer-events-none transform -translate-x-1/2 animate-fade-in-scale border-2"
+          style={{
+            left: tooltipPosition.x,
+            top: tooltipPosition.y,
+            borderColor: mvpCityIds.includes(hoveredCity) ? "var(--tatreez-red)" : "var(--cream-dark)"
+          }}
         >
           {(() => {
             const city = cities.find((c) => c.id === hoveredCity);
@@ -185,30 +204,38 @@ export function PalestineMap({
             return (
               <>
                 <div className="text-center">
-                  <p className="font-bold text-[var(--tatreez-red)]">
+                  <div className="text-3xl mb-2">{city.icon}</div>
+                  <p className="font-bold text-lg text-[var(--tatreez-red)]">
                     {t(city.name)}
                   </p>
-                  <p className="text-sm text-gray-500 arabic-text">
+                  <p className="text-sm text-[var(--olive)] arabic-text">
                     {city.name.ar}
                   </p>
-                  <p className="text-xs text-gray-400 italic">
+                  <p className="text-xs text-[var(--foreground-muted)] italic">
                     {city.name.transliteration}
                   </p>
                 </div>
                 {showProgress && isMvp && (
-                  <div className="mt-2">
-                    <div className="progress-bar w-24">
+                  <div className="mt-3">
+                    <div className="progress-bar w-28">
                       <div
                         className="progress-bar-fill"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <p className="text-xs text-center mt-1">{progress}%</p>
+                    <p className="text-xs text-center mt-1 font-medium" style={{ color: "var(--tatreez-green)" }}>
+                      {progress}% {language === "ar" ? "مكتمل" : "complete"}
+                    </p>
                   </div>
                 )}
                 {!isMvp && (
-                  <p className="text-xs text-gray-400 mt-1 text-center">
-                    Coming soon
+                  <p className="text-xs text-[var(--foreground-muted)] mt-2 text-center bg-[var(--cream)] px-3 py-1 rounded-full">
+                    {language === "ar" ? "قريباً" : "Coming soon"}
+                  </p>
+                )}
+                {isMvp && (
+                  <p className="text-xs text-center mt-2 font-medium" style={{ color: "var(--tatreez-red)" }}>
+                    {language === "ar" ? "انقر للاستكشاف →" : "Click to explore →"}
                   </p>
                 )}
               </>
@@ -260,10 +287,34 @@ export function PalestineMap({
               opacity="0.1"
             />
           </pattern>
+          {/* Glow filter for MVP cities */}
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
 
         {/* Sea (Mediterranean) */}
         <rect x="0" y="0" width="35" height="100" fill="url(#seaGradient)" opacity="0.3" />
+
+        {/* Waves animation */}
+        <g opacity="0.2">
+          <path d="M0 30 Q10 28 20 30 T40 30" stroke="#4682B4" strokeWidth="0.5" fill="none">
+            <animate attributeName="d" dur="3s" repeatCount="indefinite"
+              values="M0 30 Q10 28 20 30 T40 30;M0 30 Q10 32 20 30 T40 30;M0 30 Q10 28 20 30 T40 30"/>
+          </path>
+          <path d="M0 50 Q10 48 20 50 T40 50" stroke="#4682B4" strokeWidth="0.5" fill="none">
+            <animate attributeName="d" dur="2.5s" repeatCount="indefinite"
+              values="M0 50 Q10 48 20 50 T40 50;M0 50 Q10 52 20 50 T40 50;M0 50 Q10 48 20 50 T40 50"/>
+          </path>
+          <path d="M0 70 Q10 68 20 70 T40 70" stroke="#4682B4" strokeWidth="0.5" fill="none">
+            <animate attributeName="d" dur="3.5s" repeatCount="indefinite"
+              values="M0 70 Q10 68 20 70 T40 70;M0 70 Q10 72 20 70 T40 70;M0 70 Q10 68 20 70 T40 70"/>
+          </path>
+        </g>
 
         {/* Historic Palestine outline - simplified */}
         <path
@@ -296,7 +347,8 @@ export function PalestineMap({
           fontSize="3"
           fill="var(--olive-dark)"
           textAnchor="middle"
-          fontWeight="500"
+          fontWeight="600"
+          className="select-none"
         >
           {language === "ar" ? "الجليل" : "Galilee"}
         </text>
@@ -306,7 +358,8 @@ export function PalestineMap({
           fontSize="3"
           fill="var(--olive-dark)"
           textAnchor="middle"
-          fontWeight="500"
+          fontWeight="600"
+          className="select-none"
         >
           {language === "ar" ? "الساحل" : "Coast"}
         </text>
@@ -316,7 +369,8 @@ export function PalestineMap({
           fontSize="3"
           fill="var(--olive-dark)"
           textAnchor="middle"
-          fontWeight="500"
+          fontWeight="600"
+          className="select-none"
         >
           {language === "ar" ? "الوسط" : "Central"}
         </text>
@@ -326,7 +380,8 @@ export function PalestineMap({
           fontSize="3"
           fill="var(--olive-dark)"
           textAnchor="middle"
-          fontWeight="500"
+          fontWeight="600"
+          className="select-none"
         >
           {language === "ar" ? "غزة" : "Gaza"}
         </text>
@@ -336,32 +391,62 @@ export function PalestineMap({
           const isMvp = mvpCityIds.includes(city.id);
           const progress = getCityProgress(city.id);
           const isCompleted = progress === 100;
+          const isHovered = hoveredCity === city.id;
 
           return (
             <g
               key={city.id}
               transform={`translate(${city.x}, ${city.y})`}
-              className={`cursor-pointer transition-transform ${
-                isMvp ? "hover:scale-125" : "opacity-50"
+              className={`cursor-pointer transition-all duration-300 ${
+                isMvp ? "hover:scale-150" : "opacity-50 hover:opacity-70"
               }`}
               onClick={() => handleCityClick(city.id)}
               onMouseMove={(e) => handleMouseMove(e, city)}
               onMouseLeave={() => setHoveredCity(null)}
+              filter={isMvp && isHovered ? "url(#glow)" : undefined}
             >
+              {/* Pulse animation for MVP cities */}
+              {isMvp && !isCompleted && (
+                <circle
+                  r="4"
+                  fill="none"
+                  stroke="var(--tatreez-red)"
+                  strokeWidth="0.3"
+                  opacity="0.5"
+                >
+                  <animate
+                    attributeName="r"
+                    from="2"
+                    to="5"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    from="0.5"
+                    to="0"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              )}
+
               {/* Progress ring for MVP cities */}
               {isMvp && showProgress && progress > 0 && (
                 <circle
                   r="3.5"
                   fill="none"
                   stroke="var(--tatreez-green)"
-                  strokeWidth="0.5"
+                  strokeWidth="0.6"
                   strokeDasharray={`${(progress / 100) * 22} 22`}
                   transform="rotate(-90)"
+                  strokeLinecap="round"
                 />
               )}
+
               {/* City dot */}
               <circle
-                r="2"
+                r={isMvp ? 2.5 : 1.5}
                 fill={
                   isCompleted
                     ? "var(--tatreez-green)"
@@ -371,7 +456,9 @@ export function PalestineMap({
                 }
                 stroke="white"
                 strokeWidth="0.5"
+                className={isHovered && isMvp ? "animate-ping" : ""}
               />
+
               {/* Checkmark for completed cities */}
               {isCompleted && (
                 <text
@@ -383,12 +470,26 @@ export function PalestineMap({
                   ✓
                 </text>
               )}
+
+              {/* City label for MVP cities */}
+              {isMvp && (
+                <text
+                  y="6"
+                  fontSize="2"
+                  fill="var(--foreground)"
+                  textAnchor="middle"
+                  fontWeight="500"
+                  className="select-none"
+                >
+                  {language === "ar" ? city.name.ar.slice(0, 4) : city.name.en.slice(0, 4)}
+                </text>
+              )}
             </g>
           );
         })}
 
         {/* Olive branch decoration in corner */}
-        <g transform="translate(5, 90) scale(0.15)">
+        <g transform="translate(5, 88) scale(0.15)">
           <path
             d="M10 50 Q30 30 60 40 Q90 50 100 30"
             stroke="var(--olive)"
@@ -408,22 +509,30 @@ export function PalestineMap({
       </svg>
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-gray-800/90 rounded-lg p-3 text-sm">
-        <p className="font-semibold mb-2">
+      <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-xl p-4 text-sm shadow-lg border border-[var(--cream-dark)]">
+        <p className="font-bold mb-3 text-[var(--foreground)]">
           {language === "ar" ? "دليل الخريطة" : "Map Legend"}
         </p>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-3 h-3 rounded-full bg-[var(--tatreez-red)]" />
-          <span>{language === "ar" ? "مدينة" : "City"}</span>
+        <div className="flex items-center gap-2 mb-2 group cursor-pointer">
+          <span className="w-4 h-4 rounded-full bg-[var(--tatreez-red)] shadow-md group-hover:scale-110 transition-transform" />
+          <span className="font-medium">{language === "ar" ? "مدينة" : "City"}</span>
         </div>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-3 h-3 rounded-full bg-[var(--tatreez-green)]" />
-          <span>{language === "ar" ? "مكتملة" : "Completed"}</span>
+        <div className="flex items-center gap-2 mb-2 group cursor-pointer">
+          <span className="w-4 h-4 rounded-full bg-[var(--tatreez-green)] shadow-md group-hover:scale-110 transition-transform" />
+          <span className="font-medium">{language === "ar" ? "مكتملة" : "Completed"}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[var(--charcoal)] opacity-70" />
-          <span>{language === "ar" ? "قرية مدمرة" : "Destroyed Village"}</span>
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <span className="w-4 h-4 rounded-full bg-[var(--charcoal)] opacity-70 shadow-md group-hover:scale-110 transition-transform" />
+          <span className="font-medium">{language === "ar" ? "قرية مدمرة" : "Destroyed Village"}</span>
         </div>
+      </div>
+
+      {/* Map instructions */}
+      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 text-sm shadow-lg border border-[var(--cream-dark)]">
+        <p className="font-medium text-[var(--tatreez-red)] flex items-center gap-2">
+          <span className="animate-bounce">👆</span>
+          {language === "ar" ? "انقر على مدينة للاستكشاف" : "Click a city to explore"}
+        </p>
       </div>
     </div>
   );
